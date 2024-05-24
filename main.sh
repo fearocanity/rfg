@@ -5,16 +5,20 @@ fb_tok="${2}"
 
 branches=('5082e093c2e1fd122b6ecb4d6deefa890e34d68b' '2ff97c5698984fd38069d0f3162da05549830e1a' '491c1cd111bd1ebec274e5a0be89abfebe716a22' '6638a7f8ad970b5cf6836f7d87912c1e7a7ae8da' '11ff7619bdafeb8dc922c2fb246a5bdd36c6a08f' '319adf0a3eb2dbec2aa925676854bbaeca207c9f' 'f8d55703f539389ebd78b225fca9da4568077a43' '5a7b322569b6d4b1681dbba5fd34dcf902c9b8db' 'af6aba8f2be0aeb1de1b735a4c5eb4a2448c5931' 'ca8446da0b8937c3f55fef1ed44e649f8390cbb7' '9b810c5253f7ed2ec80124a1f18e2b719fa241fa' 'c5240a03794a7fe6b8dad539d5ce65c4de3519fd')
 
+rand_gen(){
+	od -vAn -N4 -tu4 < /dev/urandom | base64 | xxd -p | awk -v s="${RANDOM}" 'BEGIN{srand(s)}{l=length($0);for (i=1;i<=12; i++){printf substr($0,int(rand()*l)+1,1)}}'
+}
+
 main_br(){
 	# select rand num from range
-	rand_ind="$((RANDOM % ${#branches[@]}))"
+	rand_ind="$(awk -v s="$(rand_gen ; rand_gen)" -v r="${branches[*]}" 'BEGIN{split(r,i," ");srand(s);x=int(rand()*length(i))+1;printf i[x]}')"
 	selc_branch="${branches[${rand_ind}]}"
 	
 	# declare the config file
 	source <(curl -sL "https://raw.githubusercontent.com/fearocanity/ebtrfio-bot/${selc_branch}/config.conf")
 	
 	# makes it more random
-	seed="$(od -An -N4 -tx1 /dev/urandom | tr -d ' \n')"
+	seed="$(rand_gen)"
 	
 	# select frame by number
 	all_f="$(curl -sLk  -H "Authorization: Bearer ${git_tok}" "https://api.github.com/repos/fearocanity/ebtrfio-bot/git/trees/${selc_branch}?recursive=1")"
