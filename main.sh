@@ -21,7 +21,7 @@ main_br(){
 	
 	# select frame by number
 	all_f="$(curl -sLk  -H "Authorization: Bearer ${git_tok}" "https://api.github.com/repos/fearocanity/ebtrfio-bot/git/trees/${selc_branch}?recursive=1")"
-	selc_frame="$(jq .tree[].path <<< "${all_f}" | sed -nE 's|.*/frame_([^\.]*)\.jpg.*|\1|p' | awk -v s="${seed}" 'BEGIN{srand(s)}{++n;if(rand()<1/n)l=$0}END{print l}')"
+	selc_frame="$(jq .tree[].path <<< "${all_f}" | sed -nE 's|.*/frame_(.*)\.jpg.*|\1|p' | awk -v s="${seed}" 'BEGIN{srand(s)}{++n;if (rand()<1/n)l=$0}END{print l}')"
 }
 
 
