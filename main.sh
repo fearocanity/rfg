@@ -21,7 +21,7 @@ main_br(){
 	
 	# select frame by number
 	all_f="$(curl -sLk  -H "Authorization: Bearer ${git_tok}" "https://api.github.com/repos/fearocanity/ebtrfio-bot/git/trees/${selc_branch}?recursive=1")"
-	selc_frame="$(jq .tree[].path <<< "${all_f}" | sed -nE 's|.*/frame_(.*)\.jpg.*|\1|p' | awk -v s="${seed}" 'BEGIN{srand(s)}{++n;if (rand()<1/n)l=$0}END{print l}')"
+	selc_frame="$(jq .tree[].path <<< "${all_f}" | sed -nE 's|.*/frame_(.*)\.jpg.*|\1|p' | awk -v s="${seed}" 'BEGIN{srand(s)}{++n;if(rand()<1/n)l=$0}END{print l}')"
 }
 
 
@@ -70,18 +70,18 @@ scrv3(){
 				gsub(/\\N/,"",g);
 				gsub(/\\h/,"",g);
 				if (f ~ /[^,]*,sign/) {
-					print "【"g"】"
+					print "[sign]"g"[/sign]"
 				} else if (f ~ /Signs,,/) {
-					print "\""g"\""
+					print "[signs]"g"[/signs]"
 				} else if (f ~ /Songs[^,]*,[^,]*,|OP[^,]*,|ED[^,]*,/) {
-					print "『"g"』"
+					print "[song]"g"[/song]"
 				} else {
 					print g
 				}
 			}
 		}' <(curl -sL "https://raw.githubusercontent.com/fearocanity/ebtrfio-bot/${selc_branch}/${path_df}") | \
 	awk '!a[$0]++{
-			if ($0 ~ /^【.+】$/) aa=aa $0 "\n"; else bb=bb $0 "\n"
+			if ($0 ~ /^\[sig(n|ns)\]/) aa=aa $0 "\n"; else bb=bb $0 "\n"
 		} END {
 		print aa bb
 		}' | \
@@ -90,6 +90,20 @@ scrv3(){
 	unset current_time
 }
 
+
+add_propersubs(){
+	subs_sign="$(sed -nE 's_^\[sig(n|ns)\](.*)\[/sig(n|ns)\]_[\2]_p' <<< "${subtitle}")"
+	subs_normal="$(grep -vE '\[sig(n|ns)\]' <<< "${subtitle}" | sed -E 's|^\[song\](.*)\[/song\]|(\1)|g')"
+	
+	if [[ -n "${subs_normal}" ]]; then
+		convert main_frame.jpg -gravity south -undercolor '#00000090' -fill white -font fonts/trebuc.ttf -weight 900 -pointsize 45 -annotate +0+100 "${subs_normal}" output_image.jpg
+		mv output_image.jpg main_frame.jpg
+	fi
+	if [[ -n "${subs_sign}" ]]; then
+		convert main_frame.jpg -gravity north -undercolor '#00000090' -fill white -font fonts/trebuc.ttf -weight 900 -pointsize 45 -annotate +0+100 "${subs_sign}"  output_image.jpg
+		mv output_image.jpg main_frame.jpg
+	fi
+}
 
 main_post(){
 	main_br
@@ -100,7 +114,6 @@ main_post(){
 	[Random Frame]
 	Season ${season}, Episode ${episode}, Frame ${selc_frame} (Timestamp: ${timestamp})
 	
-	${subtitle}
 	.
 	.
 	RNG seed: ${seed}
@@ -109,8 +122,16 @@ main_post(){
 	
 	curl -sL "https://raw.githubusercontent.com/fearocanity/ebtrfio-bot/${selc_branch}/frames/frame_${selc_frame}.jpg" -o main_frame.jpg
 	response="$(curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/me/photos?access_token=${fb_tok}&published=1" -F "message=${main_message}" -F "source=@main_frame.jpg")"
-	printf '%s\n' "${response}" | grep -Po '(?=[0-9])(.*)(?=\",\")' >> complete.log
+	idxf="$(printf '%s\n' "${response}" | grep -Po '(?=[0-9])(.*)(?=\",\")')"
+	
+	# add subs
+	add_propersubs
+	
+	# post subs
+	if [[ -n "${subs_sign}" ]] || [[ -n "${subs_normal}" ]]; then
+		curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/v18.0/${idxf}/comments?access_token=${fb_tok}" -F "message=Subs:" -F "source=@main_frame.jpg" -o /dev/null
 	rm main_frame.jpg
+	fi
 }
 
 main_post
