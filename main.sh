@@ -90,17 +90,39 @@ scrv3(){
 	unset current_time
 }
 
+rand_func(){ od -vAn -N2 -tu2 < /dev/urandom | tr -dc '0-9' ;}
+rand_range(){ awk -v "a=200" -v "b=600" -v "c=$(rand_func)" 'BEGIN{srand();print int(a+(rand() - c % c)*(b-a+1))}' ;}
+
+random_crop(){
+	crop_width="$(rand_range)"
+	crop_height="$(rand_range)"
+	image_width="$(identify -format '%w' "${1}")"
+	image_height="$(identify -format '%h' "${1}")"
+	crop_x="$(($(rand_func) % (image_width - crop_width)))"
+	crop_y="$(($(rand_func) % (image_height - crop_height)))"
+	convert "${1}" -crop "${crop_width}x${crop_height}+${crop_x}+${crop_y}" output_image.jpg
+	msg_rc="Random Crop. [${crop_width}x${crop_height} ~ X: ${crop_x}, Y: ${crop_y}]"
+}
 
 add_propersubs(){
 	subs_sign="$(sed -nE 's_^\[sig(n|ns)\](.*)\[/sig(n|ns)\]_[\2]_p' <<< "${subtitle}")"
 	subs_normal="$(grep -vE '\[sig(n|ns)\]' <<< "${subtitle}" | sed -E 's|^\[song\](.*)\[/song\]|(\1)|g')"
 	
+	chk_reso="$(identify -format '%w' main_frame.jpg)"
+	if [[ "${chk_reso}" -ge "1920" ]]; then
+		pt_size="45"
+		ant_pos="100"
+	else
+		pt_size="30"
+		ant_pos="75"
+	fi
+	
 	if [[ -n "${subs_normal}" ]]; then
-		convert main_frame.jpg -gravity south -undercolor '#00000090' -fill white -font fonts/trebuc.ttf -weight 900 -pointsize 45 -annotate +0+100 "${subs_normal}" output_image.jpg
+		convert main_frame.jpg -gravity south -undercolor '#00000090' -fill white -font fonts/trebuc.ttf -weight 900 -pointsize "${pt_size}" -annotate +0+"${ant_pos}" "${subs_normal}" output_image.jpg
 		mv output_image.jpg main_frame.jpg
 	fi
 	if [[ -n "${subs_sign}" ]]; then
-		convert main_frame.jpg -gravity north -undercolor '#00000090' -fill white -font fonts/trebuc.ttf -weight 900 -pointsize 45 -annotate +0+100 "${subs_sign}"  output_image.jpg
+		convert main_frame.jpg -gravity north -undercolor '#00000090' -fill white -font fonts/trebuc.ttf -weight 900 -pointsize "${pt_size}" -annotate +0+"${ant_pos}" "${subs_sign}"  output_image.jpg
 		mv output_image.jpg main_frame.jpg
 	fi
 }
@@ -124,13 +146,21 @@ main_post(){
 	response="$(curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/me/photos?access_token=${fb_tok}&published=1" -F "message=${main_message}" -F "source=@main_frame.jpg")"
 	idxf="$(printf '%s\n' "${response}" | grep -Po '(?=[0-9])(.*)(?=\",\")')"
 	
+	# random crop
+	random_crop
+	
+	if [[ -n "${idxf}" ]]; then
+		curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/v18.0/${idxf}/comments?access_token=${fb_tok}" -F "message=${msg_rc}" -F "source=@output_image.jpg" -o /dev/null
+		rm -f output_image.jpg
+	fi
+	
 	# add subs
 	add_propersubs
 	
 	# post subs
 	if [[ -n "${subs_sign}" ]] || [[ -n "${subs_normal}" ]]; then
 		curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/v18.0/${idxf}/comments?access_token=${fb_tok}" -F "message=Subs:" -F "source=@main_frame.jpg" -o /dev/null
-	rm main_frame.jpg
+		rm main_frame.jpg
 	fi
 }
 
