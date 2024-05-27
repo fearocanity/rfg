@@ -6,11 +6,15 @@ on:
 
 jobs:
   niji:
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: run
         env:
             tok_fb: ${{ secrets.TOK_FB }}
             tok_git: ${{ secrets.TOK_GIT }}
-        run: bash main.sh "${tok_git}" "${tok_fb}"
+        run: |
+          rand="$(( RANDOM % 4 ))"
+          [[ "${rand}" -eq 0 ]] || exit 0
+          # 1/4 chance (25% chance)
+          bash main.sh "${tok_git}" "${tok_fb}"
