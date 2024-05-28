@@ -11,8 +11,7 @@ rand_gen(){
 
 main_br(){
 	# select rand num from range
-	selc_branch="$(awk -v s="$(rand_gen ; rand_gen)" -v r="${branches[*]}" 'BEGIN{split(r,i," ");srand(s);x=int(rand()*length(i))+1;printf i[x]}')"
-	
+	selc_branch="$(awk -v s="$(rand_gen)" '{n=split($0,i," ");srand(s);x=int(1+rand()*n);print i[x]}' <<< "${branches[*]}")"	
 	# declare the config file
 	source <(curl -sL "https://raw.githubusercontent.com/fearocanity/ebtrfio-bot/${selc_branch}/config.conf")
 	
