@@ -28,7 +28,7 @@ nth(){
 	# This function aims to convert current frame to time (in seconds)
 	#
 	# You need to get the exact Frame Rate of a video
-	t="${1/[!0-9]/}"
+	t="${1/[!0-9.]/}"
 	sec="$(bc -l <<< "scale=2; x = (${t:-1} - 1) / ${img_fps};"' if (length (x) == scale (x) && x != 0) { if (x < 0) print "-",0,-x else print 0,x } else print x')"
  	if [[ "${2}" = "timestamp" ]]  || grep -qE '^-' <<< "${sec}"; then
 		sec="$(bc -l <<< "scale=2; x = ${t:-1} / ${img_fps};"' if (length (x) == scale (x) && x != 0) { if (x < 0) print "-",0,-x else print 0,x } else print x')"
