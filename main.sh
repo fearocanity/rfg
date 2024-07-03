@@ -24,7 +24,7 @@ main_br(){
 		selc_frame="$(jq .tree[].path <<< "${all_f}" | sed -nE 's|.*/frame_(.*)\.jpg.*|\1|p' | awk -v s="${seed}" 'BEGIN{srand(s)}{++n;if(rand()<1/n)l=$0}END{print l}')"
 	else
 		selc_frame_old="${selc_frame}"
-		selc_frame="$(( selc_frame + $(( (RANDOM % 10) + 1)) ))"
+		selc_frame="$(( selc_frame + $(shuf -i 7-25 -n 1) ))"
 	fi
 }
 
