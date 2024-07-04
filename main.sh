@@ -118,7 +118,7 @@ add_propersubs(){
 		strk_width="8"
 	else
 		pt_size="30"
-		ant_pos="75"
+		ant_pos="65"
 		strk_width="5"
 	fi
 	if [[ -n "${subs_normal}" ]]; then
