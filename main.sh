@@ -28,7 +28,6 @@ main_br(){
 	fi
 }
 
-
 nth(){
 	# This function aims to convert current frame to time (in seconds)
 	#
@@ -116,13 +115,21 @@ add_propersubs(){
 	if [[ "${chk_reso}" -ge "1920" ]]; then
 		pt_size="45"
 		ant_pos="100"
+		strk_width="8"
 	else
 		pt_size="30"
 		ant_pos="75"
+		strk_width="5"
 	fi
-	
 	if [[ -n "${subs_normal}" ]]; then
-		convert "${1}" -gravity south -undercolor '#00000090' -fill white -font fonts/trebuc.ttf -weight 900 -pointsize "${pt_size}" -annotate +0+"${ant_pos}" "${subs_normal}" output_image.jpg
+		if [[ "${single}" == "1" ]]; then
+			convert "${1}" -gravity south -undercolor '#00000090' -fill white -font fonts/trebuc.ttf -weight 900 -pointsize "${pt_size}" -annotate +0+"${ant_pos}" "${subs_normal}" output_image.jpg
+		else
+			reso_perc="$(bc <<< "(0.85*${chk_reso})/1")"
+			convert -background none -size "${reso_perc}"x -gravity center -font fonts/forsub.ttf \( -fill black -stroke black -strokewidth "${strk_width}" -pointsize "$((pt_size + 10))" caption:"${subs_normal}" \) -pointsize "$((pt_size + 10))" -fill white -stroke none caption:"${subs_normal}" +composite capt_temp.png
+			convert "${1}" \( -gravity south capt_temp.png -geometry "+0+${ant_pos}" \) +composite output_image.jpg
+			rm capt_temp.png
+		fi
 		mv output_image.jpg "${1}"
 	fi
 	if [[ -n "${subs_sign}" ]]; then
@@ -153,8 +160,9 @@ two_panel(){
 	)"
 }
 
+
 main_post(){
-	if [[ "0" == 0 ]]; then
+	if [[ "$((RANDOM % 2))" == 0 ]]; then
 		main_br
 		scrv3 "$(nth "${selc_frame}")"
 		timestamp="$(nth "${selc_frame}" timestamp)"
