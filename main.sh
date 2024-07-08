@@ -136,7 +136,7 @@ add_propersubs(){
 		convert "${1}" -gravity north -undercolor '#00000090' -fill white -font fonts/trebuc.ttf -weight 900 -pointsize "${pt_size}" -annotate +0+"${ant_pos}" "${subs_sign}"  output_image.jpg
 		mv output_image.jpg "${1}"
 	fi
-	unset subs_sign subs_normal
+	[[ "${single}" == "1" ]] && unset subs_sign subs_normal
 }
 
 two_panel(){
