@@ -201,16 +201,13 @@ main_post(){
 	fi
 	response="$(curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/me/photos?access_token=${fb_tok}&published=1" -F "message=${main_message}" -F "source=@main_frame.jpg")"
 	idxf="$(printf '%s\n' "${response}" | grep -Po '(?=[0-9])(.*)(?=\",\")')"
-	
-	if [[ "${single}" == 1 ]]; then	    
-		# random crop
-		random_crop "main_frame.jpg"
-	
-		if [[ -n "${idxf}" ]]; then
-			curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/v18.0/${idxf}/comments?access_token=${fb_tok}" -F "message=${msg_rc}" -F "source=@output_image.jpg" -o /dev/null
-			rm -f output_image.jpg
-		fi
-	
+	# random crop
+	random_crop "main_frame.jpg"
+	if [[ -n "${idxf}" ]]; then
+		curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/v18.0/${idxf}/comments?access_token=${fb_tok}" -F "message=${msg_rc}" -F "source=@output_image.jpg" -o /dev/null
+		rm -f output_image.jpg
+	fi
+	if [[ "${single}" == 1 ]]; then
 		# add subs
 		add_propersubs "main_frame.jpg"
 	
