@@ -196,13 +196,13 @@ main_post(){
 	else
 		two_panel
 	fi
-	
+	if [[ "${single}" == 1 ]] && [[ "$((RANDOM % 2))" == 0 ]]; then
+ 		mirror_image "$(((RANDOM % 100) + 50))"
+	fi
 	response="$(curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/me/photos?access_token=${fb_tok}&published=1" -F "message=${main_message}" -F "source=@main_frame.jpg")"
 	idxf="$(printf '%s\n' "${response}" | grep -Po '(?=[0-9])(.*)(?=\",\")')"
 	
-	if [[ "${single}" == 1 ]]; then
-	    [[ "$((RANDOM % 2))" == 0 ]] && mirror_image "$(((RANDOM % 100) + 50))"
-	    
+	if [[ "${single}" == 1 ]]; then	    
 		# random crop
 		random_crop "main_frame.jpg"
 	
