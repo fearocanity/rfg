@@ -116,8 +116,8 @@ add_propersubs(){
  	pt_size=$(bc <<< "${chk_reso} * 0.0234")
 	ant_pos=$(bc <<< "${chk_reso} * 0.0521")
         strk_width=$(bc <<< "${chk_reso} * 0.0042")
-	pt_size="$(printf "%.0f" "${ant_pos}")"
-	ant_pos="$(printf "%.0f" "${pt_size}")"
+	pt_size="$(printf "%.0f" "${pt_size}")"
+	ant_pos="$(printf "%.0f" "${ant_pos}")"
 	strk_width="$(printf "%.0f" "${strk_width}")"
 	if [[ -n "${subs_normal}" ]]; then
 		if [[ "${single}" == "1" ]]; then
