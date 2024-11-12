@@ -161,6 +161,21 @@ two_panel(){
 }
 
 
+mirror_image(){
+    IMAGE="main_frame.jpg"
+    OFFSET_PERCENTAGE=${1:-50} 
+    WIDTH=$(identify -format "%w" "$IMAGE")
+    HEIGHT=$(identify -format "%h" "$IMAGE")
+    HALF_WIDTH=$((WIDTH / 2))
+    OFFSET_PIXELS=$((HALF_WIDTH * OFFSET_PERCENTAGE / 100))
+    convert "$IMAGE" -crop "${HALF_WIDTH}x${HEIGHT}+$OFFSET_PIXELS+0" +repage right_half.png
+    convert right_half.png -flop mirrored_right_half.png
+    rm main_frame.jpg
+    convert mirrored_right_half.png right_half.png +append main_frame.jpg
+    rm mirrored_right_half.png right_half.png
+    main_message+=$'\n'"Filter: --mirror [offset:${OFFSET_PERCENTAGE}]"
+}
+
 main_post(){
 	if [[ "$((RANDOM % 2))" == 0 ]]; then
 		main_br
@@ -186,6 +201,8 @@ main_post(){
 	idxf="$(printf '%s\n' "${response}" | grep -Po '(?=[0-9])(.*)(?=\",\")')"
 	
 	if [[ "${single}" == 1 ]]; then
+	    [[ "$((RANDOM % 2))" == 0 ]] && mirror_image "$(((RANDOM % 100) + 50))"
+	    
 		# random crop
 		random_crop "main_frame.jpg"
 	
