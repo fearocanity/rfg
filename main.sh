@@ -112,15 +112,13 @@ add_propersubs(){
 	subs_normal="$(grep -vE '\[sig(n|ns)\]' <<< "${subtitle}" | sed -E 's|^\[song\](.*)\[/song\]|(\1)|g')"
 	
 	chk_reso="$(identify -format '%w' "${1}")"
-	if [[ "${chk_reso}" -ge "1920" ]]; then
-		pt_size="45"
-		ant_pos="100"
-		strk_width="8"
-	else
-		pt_size="30"
-		ant_pos="65"
-		strk_width="5"
-	fi
+	# contains magic values to make it adaptive
+ 	pt_size=$(bc <<< "${chk_reso} * 0.0234")
+	ant_pos=$(bc <<< "${chk_reso} * 0.0521")
+        strk_width=$(bc <<< "${chk_reso} * 0.0042")
+	pt_size="$(printf "%.0f" "${ant_pos}")"
+	ant_pos="$(printf "%.0f" "${pt_size}")"
+	strk_width="$(printf "%.0f" "${strk_width}")"
 	if [[ -n "${subs_normal}" ]]; then
 		if [[ "${single}" == "1" ]]; then
 			convert "${1}" -gravity south -undercolor '#00000090' -fill white -font fonts/trebuc.ttf -weight 900 -pointsize "${pt_size}" -annotate +0+"${ant_pos}" "${subs_normal}" output_image.jpg
