@@ -155,7 +155,6 @@ two_panel(){
 	)"
 }
 
-
 mirror_image(){
     IMAGE="main_frame.jpg"
     OFFSET_PERCENTAGE=${1:-50} 
@@ -203,7 +202,7 @@ generate_palette() {
         color_brightness_pairs+=("${brightness} ${color}")
     done <<< "${palleted}"
 
-    sorted_colors=$(printf "%s\n" "${color_brightness_pairs[@]}" | sort -rn | awk '{print $2}')
+    sorted_colors="$(printf "%s\n" "${color_brightness_pairs[@]}" | sort -rn | awk '{print $2}')"
 
     block_width="$((original_width / num_colors))"
 
@@ -234,7 +233,8 @@ generate_palette() {
 }
 
 main_post(){
-    if [[ "$((RANDOM % 2))" == 0 ]]; then
+    # fair chance to filter
+    if [[ "$((RANDOM % 4))" != 0 ]]; then
         main_br
         scrv3 "$(nth "${selc_frame}")"
         timestamp="$(nth "${selc_frame}" timestamp)"
@@ -249,13 +249,15 @@ main_post(){
 		EOF
 		)"
         curl -sL "https://raw.githubusercontent.com/fearocanity/ebtrfio-bot/${selc_branch}/frames/frame_${selc_frame}.jpg" -o main_frame.jpg
+        cp main_frame.jpg main_frame_bak.jpg
         single=1
     else
         two_panel
     fi
     
     if [[ "${single}" == 1 ]]; then
-        case "$((RANDOM % 6))" in
+        # unfair chance to filter (prior for the best)
+        case "$((RANDOM % 5))" in
             1)
                 mirror_image "$(((RANDOM % 100) + 50))"
                 ;;
@@ -282,14 +284,14 @@ main_post(){
     fi
     if [[ "${single}" == 1 ]]; then
         # add subs
-        add_propersubs "main_frame.jpg"
+        add_propersubs "main_frame_bak.jpg"
     
         # post subs
         if [[ -n "${subs_sign}" ]] || [[ -n "${subs_normal}" ]]; then
             curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/v18.0/${idxf}/comments?access_token=${fb_tok}" -F "message=Subs:" -F "source=@main_frame.jpg" -o /dev/null
-            rm main_frame.jpg
         fi
     fi
+    rm main_frame.jpg main_frame_bak.jpg
 }
 
 main_post
