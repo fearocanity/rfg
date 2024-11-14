@@ -288,7 +288,7 @@ main_post(){
     
         # post subs
         if [[ -n "${subs_sign}" ]] || [[ -n "${subs_normal}" ]]; then
-            curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/v18.0/${idxf}/comments?access_token=${fb_tok}" -F "message=Subs:" -F "source=@main_frame.jpg" -o /dev/null
+            curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/v18.0/${idxf}/comments?access_token=${fb_tok}" -F "message=Subs:" -F "source=@main_frame_bak.jpg" -o /dev/null
         fi
     fi
     rm main_frame.jpg main_frame_bak.jpg
