@@ -219,7 +219,7 @@ generate_palette() {
 
         color_block="b${color}.png"
         convert -size "${block_width}x50" xc:"${color}" \
-            -pointsize 23 -gravity center -fill "${text_color}" -annotate +0+0 "${color}" \
+            -font fonts/helvetica_f.ttf -pointsize 23 -gravity center -fill "${text_color}" -annotate +0+0 "${color}" \
             "${color_block}"
         palette_list+=("${color_block}")
     done
