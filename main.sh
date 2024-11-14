@@ -11,7 +11,7 @@ rand_gen(){
 
 main_br(){
     # select rand num from range
-    [[ -z "${selc_branch}" ]] && selc_branch="$(awk -v s="$(rand_gen)" '{n=split($0,i," ");srand(s);x=int(1+rand()*n);print i[x]}' <<< "${branches[*]}")"    
+    [[ -z "${selc_branch}" ]] && selc_branch="$(awk -v s="$(rand_gen)" '{n=split($0,i," ");srand(s);x=int(1+rand()*n);print i[x]}' <<< "${branches[*]}")"
     # declare the config file
     source <(curl -sL "https://raw.githubusercontent.com/fearocanity/ebtrfio-bot/${selc_branch}/config.conf")
     
@@ -144,15 +144,15 @@ two_panel(){
     done
     convert main_frame_* -append main_frame.jpg
     rm main_frame_*
-    main_message="$(cat <<-EOF
-    [Random Frames]
-    Season ${season}, Episode ${episode}, Frame [${selc_frame_old}, ${selc_frame}] (Timestamp: $(sed -E 's| |, |g' <<< "${timestamp[*]}"))
-    
-    .
-    .
-    RNG seed: ${seed}
-    EOF
-    )"
+	main_message="$(cat <<-EOF
+	[Random Frames]
+	Season ${season}, Episode ${episode}, Frame [${selc_frame_old}, ${selc_frame}] (Timestamp: $(sed -E 's| |, |g' <<< "${timestamp[*]}"))
+	
+	.
+	.
+	RNG seed: ${seed}
+	EOF
+	)"
 }
 
 
@@ -230,7 +230,7 @@ generate_palette() {
     convert "${input_image}" "${palette_image}" -append "main_frame_temp.jpg"
     mv main_frame_temp.jpg "${input_image}"
     rm "${palette_image}" "${palette_list[@]}"
-    filter_message+=" --pallete [colors:${num_color}]"
+    filter_message+=" --pallete [colors:${num_colors}]"
 }
 
 main_post(){
@@ -240,14 +240,14 @@ main_post(){
         timestamp="$(nth "${selc_frame}" timestamp)"
     
         main_message="$(cat <<-EOF
-        [Random Frame]
-        Season ${season}, Episode ${episode}, Frame ${selc_frame} (Timestamp: ${timestamp})
-        
-        .
-        .
-        RNG seed: ${seed}
-        EOF
-        )"
+		[Random Frame]
+		Season ${season}, Episode ${episode}, Frame ${selc_frame} (Timestamp: ${timestamp})
+		
+		.
+		.
+		RNG seed: ${seed}
+		EOF
+		)"
         curl -sL "https://raw.githubusercontent.com/fearocanity/ebtrfio-bot/${selc_branch}/frames/frame_${selc_frame}.jpg" -o main_frame.jpg
         single=1
     else
