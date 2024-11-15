@@ -291,7 +291,7 @@ main_post(){
             curl -sfLX POST --retry 2 --retry-connrefused --retry-delay 7 "https://graph.facebook.com/v18.0/${idxf}/comments?access_token=${fb_tok}" -F "message=Subs:" -F "source=@main_frame_bak.jpg" -o /dev/null
         fi
     fi
-    rm main_frame.jpg main_frame_bak.jpg
+    rm -f main_frame.jpg main_frame_bak.jpg
 }
 
 main_post
