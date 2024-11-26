@@ -257,14 +257,14 @@ main_post(){
     
     if [[ "${single}" == 1 ]]; then
         # unfair chance to filter (prior for the best)
-        case "$((RANDOM % 5))" in
+        case "$((RANDOM % 8))" in
             1)
                 mirror_image "$(((RANDOM % 100) + 50))"
                 ;;
-            2)
+            3)
                 negative_filter
                 ;;
-            3)
+            5)
                 generate_palette "main_frame.jpg" "$(((RANDOM % 5) + 6))"
                 ;;
             *)
