@@ -232,6 +232,24 @@ generate_palette() {
     filter_message+=" --pallete [colors:${num_colors}]"
 }
 
+warp_in(){
+    # 0.1 - 0.7
+    warp_val="$(echo "scale=1; $(($RANDOM % 7 + 1))/10" | bc)"
+    IMAGE="main_frame.jpg"
+    convert "${IMAGE}" -implode "${warp_val}" temp_.png
+    mv temp_.png "${IMAGE}"
+    filter_message+=" --warp ${warp_val}"
+}
+
+warp_out(){
+    # 0.1 - 0.7
+    warp_val="-$(echo "scale=1; $(($RANDOM % 7 + 1))/10" | bc)"
+    IMAGE="main_frame.jpg"
+    convert "${IMAGE}" -implode "${warp_val}" temp_.png
+    mv temp_.png "${IMAGE}"
+    filter_message+=" --warp ${warp_val}"
+}
+
 main_post(){
     # fair chance to filter
     if [[ "$((RANDOM % 4))" != 0 ]]; then
@@ -257,7 +275,7 @@ main_post(){
     
     if [[ "${single}" == 1 ]]; then
         # unfair chance to filter (prior for the best)
-        case "$((RANDOM % 8))" in
+        case "$((RANDOM % 11))" in
             1)
                 mirror_image "$(((RANDOM % 100) + 50))"
                 ;;
@@ -267,6 +285,12 @@ main_post(){
             5)
                 generate_palette "main_frame.jpg" "$(((RANDOM % 5) + 6))"
                 ;;
+            7)
+                warp_in
+                ;;
+            9)
+                warp_out
+		;;
             *)
                 true
                 ;;
