@@ -236,6 +236,7 @@ warp_in(){
     # 0.1 - 0.7
     warp_val="$(echo "scale=1; $(($RANDOM % 7 + 1))/10" | bc)"
     IMAGE="main_frame.jpg"
+    has_filter=1
     convert "${IMAGE}" -implode "${warp_val}" temp_.png
     mv temp_.png "${IMAGE}"
     filter_message+=" --warp ${warp_val}"
@@ -245,6 +246,7 @@ warp_out(){
     # 0.1 - 0.7
     warp_val="-$(echo "scale=1; $(($RANDOM % 7 + 1))/10" | bc)"
     IMAGE="main_frame.jpg"
+    has_filter=1
     convert "${IMAGE}" -implode "${warp_val}" temp_.png
     mv temp_.png "${IMAGE}"
     filter_message+=" --warp ${warp_val}"
