@@ -239,7 +239,7 @@ warp_in(){
     has_filter=1
     convert "${IMAGE}" -implode "${warp_val}" temp_.png
     mv temp_.png "${IMAGE}"
-    filter_message+=" --warp ${warp_val}"
+    filter_message+=" --warp 0.${warp_val}"
 }
 
 warp_out(){
@@ -249,7 +249,7 @@ warp_out(){
     has_filter=1
     convert "${IMAGE}" -implode "${warp_val}" temp_.png
     mv temp_.png "${IMAGE}"
-    filter_message+=" --warp ${warp_val}"
+    filter_message+=" --warp 0.${warp_val}"
 }
 
 main_post(){
