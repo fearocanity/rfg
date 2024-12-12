@@ -6,7 +6,7 @@ on:
 
 jobs:
   niji:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: run
@@ -14,6 +14,7 @@ jobs:
             tok_fb: ${{ secrets.TOK_FB }}
             tok_git: ${{ secrets.TOK_GIT }}
         run: |
+          sudo apt install imagemagick
           rand="$(( RANDOM % 2 ))"
           [[ "${rand}" -eq 0 ]] || {
              # lost the chance, so it wouldn't post
